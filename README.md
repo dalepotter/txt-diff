@@ -1,5 +1,8 @@
 # Text Diff Checker: A local text comparison tool
 
+[![Deploy to GitHub Pages](https://github.com/dalepotter/txt-diff/actions/workflows/deploy.yml/badge.svg)](https://github.com/dalepotter/txt-diff/actions/workflows/deploy.yml)
+[🚀 Live Demo](https://dalepotter.github.io/txt-diff/)
+
 A simple, lightweight **text comparison tool** built with HTML, CSS, and JavaScript.
 
 Compares two blocks of text and highlights the differences: green for additions, red for removals, and grey for unchanged lines.  
@@ -41,12 +44,14 @@ python -m http.server 8000
 
 ```bash
 txt-diff/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml  # GitHub Actions workflow to auto-deploy to GitHub Pages
 ├── index.html # Main HTML file (including JS and CSS)
 ```
 
 
 ## 📋 Todos
-- Deploy to GitHub Actions
 - Package and build using npm & webpack
 - Add side-by-side comparison
 - Add word diff
