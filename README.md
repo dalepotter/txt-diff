@@ -24,14 +24,28 @@ Inspired by tools like [Diffchecker](https://www.diffchecker.com/), but runs ent
    git clone git@github.com:dalepotter/txt-diff.git
    cd txt-diff
    ```
-2. You don’t need any build tools — just open `index.html` in your browser.
 
-If you want a quick local server:
-```bash
-# Python 3
-python -m http.server 8000
-# Then open http://localhost:8000 in your browser
-```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Start the development server (with live reload):
+   ```bash
+   npm start
+   ```
+   This will open the application in your browser at http://localhost:8080.
+
+
+## 🚀 Deployment
+
+1. Build for production:
+   ```bash
+   npm run build
+   ```
+
+This compiles and outputs static files to the `dist/` directory, ready for deployment (e.g., GitHub Pages).
+
 
 ## 🛠 How to Use
 
@@ -47,11 +61,16 @@ txt-diff/
 ├── .github/
 │   └── workflows/
 │       └── deploy.yml  # GitHub Actions workflow to auto-deploy to GitHub Pages
-├── index.html # Main HTML file (including JS and CSS)
+├── dist/               # Compiled static files
+├── src/
+│   └── index.html      # HTML template
+│   ├── index.js        # Main JavaScript logic
+│   └── style.css       # UI styling
+├── webpack.config.js   # Webpack configuration
+└── package.json        # Project metadata and scripts
 ```
 
 
 ## 📋 Todos
-- Package and build using npm & webpack
 - Add side-by-side comparison
 - Add word diff
