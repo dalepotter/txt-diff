@@ -2,23 +2,28 @@ body {
   font-family: Arial, sans-serif;
   padding: 20px;
 }
+
 textarea {
   width: 45%;
   height: 200px;
   margin: 10px;
   padding: 10px;
 }
+
 .diff-output {
   white-space: pre-wrap;
   font-family: monospace;
   margin-top: 20px;
 }
+
 .added {
   background-color: #d4fcdc;
 }
+
 .removed {
   background-color: #ffe0e0;
 }
+
 .unchanged {
   background-color: #f4f4f4;
 }

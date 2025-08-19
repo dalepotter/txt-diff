@@ -1,4 +1,6 @@
-const { diffLines } = require('diff');
+const {
+  diffLines
+} = require('diff');
 require('./style.css');
 
 document.addEventListener('DOMContentLoaded', () => {
