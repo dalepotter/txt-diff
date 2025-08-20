@@ -72,5 +72,4 @@ txt-diff/
 
 
 ## 📋 Todos
-- Add side-by-side comparison
 - Add word diff
