@@ -18,29 +18,37 @@ document.addEventListener('DOMContentLoaded', () => {
     rightDiv.innerHTML = '';
 
     diff.forEach(part => {
-      const leftLine = document.createElement('div');
-      const rightLine = document.createElement('div');
+      const lines = part.value.split('\n');
+      // Remove last empty string if trailing newline
+      if (lines[lines.length - 1] === '') lines.pop();
 
-      if (part.added) {
-        // Added on right only
-        rightLine.classList.add('added');
-        rightLine.textContent = part.value;
-        leftLine.textContent = '';
-      } else if (part.removed) {
-        // Removed on left only
-        leftLine.classList.add('removed');
-        leftLine.textContent = part.value;
-        rightLine.textContent = '';
-      } else {
-        // Unchanged
-        leftLine.classList.add('unchanged');
-        rightLine.classList.add('unchanged');
-        leftLine.textContent = part.value;
-        rightLine.textContent = part.value;
-      }
+      lines.forEach(line => {
+        const leftLine = document.createElement('div');
+        const rightLine = document.createElement('div');
 
-      leftDiv.appendChild(leftLine);
-      rightDiv.appendChild(rightLine);
+        if (part.added) {
+          // Added text → right only
+          leftLine.classList.add('placeholder');
+          leftLine.textContent = '';
+          rightLine.classList.add('added');
+          rightLine.textContent = line;
+        } else if (part.removed) {
+          // Removed text → left only
+          leftLine.classList.add('removed');
+          leftLine.textContent = line;
+          rightLine.classList.add('placeholder');
+          rightLine.textContent = '';
+        } else {
+          // Unchanged text → both sides
+          leftLine.classList.add('unchanged');
+          leftLine.textContent = line;
+          rightLine.classList.add('unchanged');
+          rightLine.textContent = line;
+        }
+
+        leftDiv.appendChild(leftLine);
+        rightDiv.appendChild(rightLine);
+      });
     });
   });
 });

@@ -39,3 +39,8 @@ textarea {
 .unchanged {
   background-color: #f4f4f4;
 }
+
+.placeholder {
+  background-color: #fafafa;
+  min-height: 1em;
+}
