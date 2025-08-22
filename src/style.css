@@ -3,21 +3,33 @@ body {
   padding: 20px;
 }
 
-textarea {
-  width: 45%;
-  height: 200px;
-  margin: 10px;
-  padding: 10px;
-}
-
-.diff-container {
-  display: flex;
+.editor-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 20px;
-  margin-top: 20px;
+  align-items: start;
 }
 
-.diff-column {
-  flex: 1;
+.editor-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.editor-row {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  margin: 10px 0;
+}
+
+textarea {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  height: 200px;
+  margin-bottom: 10px;
+  padding: 10px;
+  resize: vertical;
 }
 
 .diff-output {

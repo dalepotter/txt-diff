@@ -8,19 +8,25 @@
 
 <body>
   <h2>Text Diff Checker</h2>
-  <div>
-    <textarea id="text1" placeholder="Original text..."></textarea>
-    <textarea id="text2" placeholder="Modified text..."></textarea>
-  </div>
-  <button id="compareBtn">Compare</button>
 
-  <div class="diff-container">
-    <div class="diff-column">
+  <div class="editor-container">
+    <div class="editor-column">
       <h3>Original</h3>
+      <textarea id="text1" placeholder="Original text..."></textarea>
+    </div>
+    <div class="editor-column">
+      <h3>Modified</h3>
+      <textarea id="text2" placeholder="Modified text..."></textarea>
+    </div>
+
+    <div class="editor-row">
+      <button id="compareBtn">Compare</button>
+    </div>
+
+    <div class="editor-column">
       <div id="diffLeft" class="diff-output"></div>
     </div>
-    <div class="diff-column">
-      <h3>Modified</h3>
+    <div class="editor-column">
       <div id="diffRight" class="diff-output"></div>
     </div>
   </div>
