@@ -72,4 +72,13 @@ txt-diff/
 
 
 ## 📋 Todos
+
 - Add word diff
+- Add settings to toggle:
+  - Line numbers
+  - Diff output (side-by-side vs. line diff)
+- Improve styling:
+  - Larger 'Compare' button
+  - Add background colour
+  - Apply UI design system
+- Add more explanatory text
