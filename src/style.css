@@ -56,3 +56,13 @@ textarea {
   background-color: #fafafa;
   min-height: 1em;
 }
+
+.word-added {
+  background-color: #90ee90;
+  font-weight: bold;
+}
+
+.word-removed {
+  background-color: #ffb3b3;
+  font-weight: bold;
+}

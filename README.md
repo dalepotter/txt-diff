@@ -73,7 +73,6 @@ txt-diff/
 
 ## 📋 Todos
 
-- Add word diff
 - Add settings to toggle:
   - Line numbers
   - Diff output (side-by-side vs. line diff)
