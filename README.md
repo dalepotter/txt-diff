@@ -36,6 +36,13 @@ Inspired by tools like [Diffchecker](https://www.diffchecker.com/), but runs ent
    ```
    This will open the application in your browser at http://localhost:8080.
 
+4. Run tests:
+   ```bash
+   npm test          # Run tests in watch mode
+   npm run test:run  # Run tests once
+   npm run test:ui   # Run tests with UI
+   ```
+
 
 ## 🚀 Deployment
 
@@ -60,15 +67,47 @@ This compiles and outputs static files to the `dist/` directory, ready for deplo
 txt-diff/
 ├── .github/
 │   └── workflows/
-│       └── deploy.yml  # GitHub Actions workflow to auto-deploy to GitHub Pages
+│       ├── deploy.yml  # GitHub Actions workflow to auto-deploy to GitHub Pages
+│       └── test.yml    # GitHub Actions workflow for testing
 ├── dist/               # Compiled static files
 ├── src/
 │   └── index.html      # HTML template
 │   ├── index.js        # Main JavaScript logic
 │   └── style.css       # UI styling
+├── test/          
+│   ├── setup.js        # Test setup configuration
+│   ├── diff.test.js    # Integration tests for diff functionality
+│   └── unit.test.js    # Unit tests for core functions
 ├── webpack.config.js   # Webpack configuration
+├── vitest.config.js    # Vitest testing configuration
 └── package.json        # Project metadata and scripts
 ```
+
+
+## 🧪 Testing
+
+This project uses [Vitest](https://vitest.dev/) for testing with jsdom for DOM testing.
+
+### Test Structure
+
+- **Integration tests** (`test/diff.test.js`): Test the complete diff functionality end-to-end
+- **Unit tests** (`test/unit.test.js`): Test individual functions and utilities
+- **Test setup** (`test/setup.js`): Common test configuration and DOM cleanup
+
+### Running Tests
+
+```bash
+npm test          # Run tests in watch mode (great for development)
+npm run test:run  # Run tests once (good for CI)
+npm run test:ui   # Open Vitest UI in browser
+```
+
+The tests cover:
+- Core diff functionality with various text inputs
+- HTML escaping for security
+- Word-level diff logic
+- DOM manipulation and event handling
+- Edge cases (empty inputs, multiline text, special characters)
 
 
 ## 📋 Todos
