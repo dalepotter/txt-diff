@@ -71,13 +71,30 @@ txt-diff/
 │       └── test.yml    # GitHub Actions workflow for testing
 ├── dist/               # Compiled static files
 ├── src/
-│   └── index.html      # HTML template
-│   ├── index.js        # Main JavaScript logic
+│   ├── app/
+│   │   ├── app.js      # Main application orchestrator
+│   │   └── state.js    # Application state management
+│   ├── diff/
+│   │   ├── diffProcessor.js  # Pure diff processing functions
+│   │   └── wordDiffer.js     # Word-level diff functions
+│   ├── render/
+│   │   └── renderer.js       # Pure rendering functions
+│   ├── utils/
+│   │   └── htmlUtils.js      # HTML utility functions
+│   ├── index.html      # HTML template
+│   ├── index.js        # Application entry point
 │   └── style.css       # UI styling
-├── test/          
-│   ├── setup.js        # Test setup configuration
-│   ├── diff.test.js    # Integration tests for diff functionality
-│   └── unit.test.js    # Unit tests for core functions
+├── test/
+│   ├── integration/          # Integration tests (end-to-end functionality)
+│   │   ├── app.test.js       # App integration tests  
+│   │   └── diff.test.js      # Diff functionality integration tests
+│   └── unit/                 # Unit tests (individual modules)
+│       ├── diffProcessor.test.js # Diff processor unit tests
+│       ├── htmlUtils.test.js     # HTML utilities unit tests
+│       ├── legacy.test.js        # Legacy unit tests  
+│       ├── renderer.test.js      # Renderer unit tests
+│       ├── state.test.js         # State management unit tests
+│       └── wordDiffer.test.js    # Word differ unit tests
 ├── webpack.config.js   # Webpack configuration
 ├── vitest.config.js    # Vitest testing configuration
 └── package.json        # Project metadata and scripts
@@ -90,24 +107,47 @@ This project uses [Vitest](https://vitest.dev/) for testing with jsdom for DOM t
 
 ### Test Structure
 
-- **Integration tests** (`test/diff.test.js`): Test the complete diff functionality end-to-end
-- **Unit tests** (`test/unit.test.js`): Test individual functions and utilities
-- **Test setup** (`test/setup.js`): Common test configuration and DOM cleanup
+The test suite is organized by test type with **100 tests** across 8 test files:
+
+### Integration Tests (`test/integration/`)
+Tests that verify end-to-end functionality and module interaction:
+- `app.test.js` - Complete application workflows and user interactions
+- `diff.test.js` - Full diff processing pipeline from input to output
+
+### Unit Tests (`test/unit/`)
+Tests that verify individual modules in isolation:
+- `htmlUtils.test.js` - HTML utility functions
+- `wordDiffer.test.js` - Word-level diff logic  
+- `diffProcessor.test.js` - Diff processing functions
+- `renderer.test.js` - Pure rendering functions
+- `state.test.js` - State management functions
+- `legacy.test.js` - Original unit tests updated for new architecture
 
 ### Running Tests
 
 ```bash
-npm test          # Run tests in watch mode (great for development)
-npm run test:run  # Run tests once (good for CI)
-npm run test:ui   # Open Vitest UI in browser
+# Run all tests
+npm test                    # Run all tests in watch mode
+npm run test:run            # Run all tests once (good for CI)
+npm run test:ui             # Open Vitest UI in browser
+npm run test:coverage       # Run tests with coverage report
+
+# Run by test type
+npm run test:unit           # Run only unit tests in watch mode
+npm run test:integration    # Run only integration tests in watch mode
+npm run test:unit:run       # Run unit tests once
+npm run test:integration:run # Run integration tests once
 ```
 
-The tests cover:
-- Core diff functionality with various text inputs
-- HTML escaping for security
-- Word-level diff logic
-- DOM manipulation and event handling
-- Edge cases (empty inputs, multiline text, special characters)
+### Test Coverage
+
+The tests comprehensively cover:
+- **Pure functions** - All utility and processing functions
+- **State management** - Application initialization and DOM interaction
+- **Integration flows** - Complete user workflows  
+- **Error handling** - Graceful failure scenarios
+- **Edge cases** - Empty inputs, multiline text, HTML injection, special characters
+- **Function composition** - How modules work together
 
 
 ## 📋 Todos

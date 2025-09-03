@@ -9,7 +9,11 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "test:unit": "vitest test/unit",
+    "test:integration": "vitest test/integration",
+    "test:unit:run": "vitest run test/unit",
+    "test:integration:run": "vitest run test/integration"
   },
   "dependencies": {
     "diff": "^8.0.2"
