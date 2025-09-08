@@ -152,6 +152,8 @@ The tests comprehensively cover:
 
 ## 📋 Todos
 
+- Horizontally align output
+- Submit on Control+Enter
 - Add settings to toggle:
   - Line numbers
   - Diff output (side-by-side vs. line diff)
