@@ -31,6 +31,14 @@ const createDiffApp = (config = {}) => {
     }
 
     state.elements.compareBtn.addEventListener('click', handleCompare);
+
+    // Add Ctrl+Enter keyboard shortcut
+    document.addEventListener('keydown', (event) => {
+      if (event.ctrlKey && event.key === 'Enter') {
+        event.preventDefault();
+        handleCompare();
+      }
+    });
   };
 
   const handleCompare = () => {

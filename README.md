@@ -15,6 +15,7 @@ Inspired by tools like [Diffchecker](https://www.diffchecker.com/), but runs ent
 - Colour-coded highlights for added, removed, and unchanged lines.
 - Runs entirely in the browser: No backend required.
 - Simple UI for desktop and mobile.
+- Keyboard shortcut available: Submit on Control+Enter
 
 
 ## 💻 Usage
@@ -153,7 +154,6 @@ The tests comprehensively cover:
 ## 📋 Todos
 
 - Horizontally align output
-- Submit on Control+Enter
 - Add settings to toggle:
   - Line numbers
   - Diff output (side-by-side vs. line diff)

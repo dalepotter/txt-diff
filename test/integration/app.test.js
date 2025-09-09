@@ -173,6 +173,89 @@ describe('App Integration', () => {
     })
   })
 
+  describe('Keyboard Shortcuts', () => {
+    it('should handle Ctrl+Enter and update DOM', async () => {
+      const { createDiffApp } = await import('../../src/app/app.js')
+
+      const app = createDiffApp()
+      const state = app.initialize()
+
+      // Simulate Ctrl+Enter keydown
+      const keydownEvent = new dom.window.KeyboardEvent('keydown', {
+        key: 'Enter',
+        ctrlKey: true,
+        cancelable: true
+      })
+      document.dispatchEvent(keydownEvent)
+
+      // Check that outputs were updated
+      expect(state.elements.leftDiff.innerHTML).toBeTruthy()
+      expect(state.elements.rightDiff.innerHTML).toBeTruthy()
+    })
+
+    it('should not trigger on Enter without Ctrl', async () => {
+      const { createDiffApp } = await import('../../src/app/app.js')
+
+      const app = createDiffApp()
+      const state = app.initialize()
+
+      // Add some initial content to verify it doesn't change
+      state.elements.leftDiff.innerHTML = 'initial content'
+      state.elements.rightDiff.innerHTML = 'initial content'
+
+      // Simulate Enter keydown without Ctrl
+      const keydownEvent = new dom.window.KeyboardEvent('keydown', {
+        key: 'Enter',
+        ctrlKey: false
+      })
+      document.dispatchEvent(keydownEvent)
+
+      // Content should remain unchanged
+      expect(state.elements.leftDiff.innerHTML).toBe('initial content')
+      expect(state.elements.rightDiff.innerHTML).toBe('initial content')
+    })
+
+    it('should not trigger on Ctrl with other keys', async () => {
+      const { createDiffApp } = await import('../../src/app/app.js')
+
+      const app = createDiffApp()
+      const state = app.initialize()
+
+      // Add some initial content to verify it doesn't change
+      state.elements.leftDiff.innerHTML = 'initial content'
+      state.elements.rightDiff.innerHTML = 'initial content'
+
+      // Simulate Ctrl+A keydown
+      const keydownEvent = new dom.window.KeyboardEvent('keydown', {
+        key: 'a',
+        ctrlKey: true
+      })
+      document.dispatchEvent(keydownEvent)
+
+      // Content should remain unchanged
+      expect(state.elements.leftDiff.innerHTML).toBe('initial content')
+      expect(state.elements.rightDiff.innerHTML).toBe('initial content')
+    })
+
+    it('should prevent default behavior on Ctrl+Enter', async () => {
+      const { createDiffApp } = await import('../../src/app/app.js')
+
+      const app = createDiffApp()
+      app.initialize()
+
+      // Simulate Ctrl+Enter keydown with preventDefault spy
+      const keydownEvent = new dom.window.KeyboardEvent('keydown', {
+        key: 'Enter',
+        ctrlKey: true,
+        cancelable: true
+      })
+      const preventDefaultSpy = vi.spyOn(keydownEvent, 'preventDefault')
+      document.dispatchEvent(keydownEvent)
+
+      expect(preventDefaultSpy).toHaveBeenCalled()
+    })
+  })
+
   describe('Error Handling', () => {
     it('should handle errors gracefully during comparison', async () => {
       const { createDiffApp } = await import('../../src/app/app.js')
