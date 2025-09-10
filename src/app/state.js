@@ -75,11 +75,42 @@ const clearOutputs = (state) => {
   state.elements.rightDiff.innerHTML = '';
 };
 
+const syncLineHeights = (leftElement, rightElement) => {
+  const leftLines = leftElement.children;
+  const rightLines = rightElement.children;
+  const maxLines = Math.max(leftLines.length, rightLines.length);
+
+  for (let i = 0; i < maxLines; i++) {
+    const leftLine = leftLines[i];
+    const rightLine = rightLines[i];
+
+    if (leftLine && rightLine) {
+      // Reset heights to auto to get natural height
+      leftLine.style.height = 'auto';
+      rightLine.style.height = 'auto';
+
+      // Get the taller height
+      const leftHeight = leftLine.offsetHeight;
+      const rightHeight = rightLine.offsetHeight;
+      const maxHeight = Math.max(leftHeight, rightHeight);
+
+      // Set both to the same height
+      leftLine.style.minHeight = `${maxHeight}px`;
+      rightLine.style.minHeight = `${maxHeight}px`;
+    }
+  }
+};
+
 const updateOutputs = (state, leftHTML, rightHTML) => {
   validateState(state);
 
   state.elements.leftDiff.innerHTML = leftHTML;
   state.elements.rightDiff.innerHTML = rightHTML;
+
+  // Synchronize line heights after rendering
+  requestAnimationFrame(() => {
+    syncLineHeights(state.elements.leftDiff, state.elements.rightDiff);
+  });
 };
 
 module.exports = {
@@ -88,5 +119,6 @@ module.exports = {
   getInputValues,
   validateState,
   clearOutputs,
-  updateOutputs
+  updateOutputs,
+  syncLineHeights
 };

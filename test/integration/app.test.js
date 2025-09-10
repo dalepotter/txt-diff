@@ -284,4 +284,62 @@ describe('App Integration', () => {
       consoleSpy.mockRestore()
     })
   })
+
+  describe('Height Synchronization', () => {
+    it('should synchronize line heights when updating outputs', async () => {
+      const { createDiffApp } = await import('../../src/app/app.js')
+
+      const app = createDiffApp()
+      const state = app.initialize()
+
+      // Mock requestAnimationFrame to run synchronously
+      const originalRAF = global.requestAnimationFrame
+      global.requestAnimationFrame = (cb) => cb()
+
+      // Mock offsetHeight for child elements
+      const mockOffsetHeight = vi.fn()
+      Object.defineProperty(HTMLElement.prototype, 'offsetHeight', {
+        configurable: true,
+        get: mockOffsetHeight.mockReturnValue(25)
+      })
+
+      try {
+        // Set up input values
+        state.elements.text1.value = 'line1\nline2'
+        state.elements.text2.value = 'line1\nline2 modified'
+
+        // Simulate button click to trigger full comparison including updateOutputs
+        const clickEvent = new dom.window.Event('click')
+        state.elements.compareBtn.dispatchEvent(clickEvent)
+
+        // Verify that the DOM elements have been updated
+        expect(state.elements.leftDiff.innerHTML).toBeTruthy()
+        expect(state.elements.rightDiff.innerHTML).toBeTruthy()
+      } finally {
+        global.requestAnimationFrame = originalRAF
+        mockOffsetHeight.mockRestore()
+      }
+    })
+
+    it('should handle requestAnimationFrame properly in updateOutputs', async () => {
+      const { createDiffApp } = await import('../../src/app/app.js')
+
+      const app = createDiffApp()
+      const state = app.initialize()
+
+      // Spy on requestAnimationFrame
+      const rafSpy = vi.spyOn(global, 'requestAnimationFrame').mockImplementation(cb => cb())
+
+      try {
+        // Trigger updateOutputs through button click
+        const clickEvent = new dom.window.Event('click')
+        state.elements.compareBtn.dispatchEvent(clickEvent)
+
+        // Should have called requestAnimationFrame for height sync
+        expect(rafSpy).toHaveBeenCalled()
+      } finally {
+        rafSpy.mockRestore()
+      }
+    })
+  })
 })

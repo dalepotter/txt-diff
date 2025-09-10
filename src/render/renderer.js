@@ -35,8 +35,17 @@ const renderLinePair = (wordDiffer) => (oldLine, newLine) => {
   return { left: '', right: '' };
 };
 
-const createLineDiv = (className, content) =>
-  `<div class="${className}">${content}</div>`;
+let lineCounter = 0;
+
+const createLineDiv = (className, content) => {
+  const lineNumber = ++lineCounter;
+  return `<div class="${className}" data-line="${lineNumber}">${content}</div>`;
+};
+
+const resetLineCounter = () => {
+  lineCounter = 0;
+};
+
 
 const renderDiffGroup = (wordDiffer, extractLines) => (group) => {
   if (group.unchanged.length > 0) {
@@ -57,6 +66,7 @@ const renderDiffGroup = (wordDiffer, extractLines) => (group) => {
 };
 
 const renderAllGroups = (groupedDiff, wordDiffer, extractLines) => {
+  resetLineCounter();
   const groupRenderer = renderDiffGroup(wordDiffer, extractLines);
   return groupedDiff.flatMap(groupRenderer);
 };
@@ -74,5 +84,6 @@ module.exports = {
   renderDiffGroup,
   renderAllGroups,
   extractRenderedContent,
-  createLineDiv
+  createLineDiv,
+  resetLineCounter
 };

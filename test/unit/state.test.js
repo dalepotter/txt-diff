@@ -9,7 +9,8 @@ const {
   getInputValues,
   validateState,
   clearOutputs,
-  updateOutputs
+  updateOutputs,
+  syncLineHeights
 } = require('../../src/app/state')
 
 describe('State Management', () => {
@@ -164,6 +165,79 @@ describe('State Management', () => {
       const state = createAppState()
 
       expect(() => updateOutputs(state, '', '')).toThrow('Application state not initialized')
+    })
+  })
+
+  describe('syncLineHeights', () => {
+    beforeEach(() => {
+      // Mock offsetHeight for testing
+      Object.defineProperty(HTMLElement.prototype, 'offsetHeight', {
+        configurable: true,
+        value: 20
+      })
+    })
+
+    it('should synchronize heights of corresponding lines', () => {
+      const leftElement = document.createElement('div')
+      const rightElement = document.createElement('div')
+
+      // Add child elements with different heights
+      const leftLine1 = document.createElement('div')
+      const leftLine2 = document.createElement('div')
+      const rightLine1 = document.createElement('div')
+      const rightLine2 = document.createElement('div')
+
+      leftElement.appendChild(leftLine1)
+      leftElement.appendChild(leftLine2)
+      rightElement.appendChild(rightLine1)
+      rightElement.appendChild(rightLine2)
+
+      // Mock different heights
+      Object.defineProperty(leftLine1, 'offsetHeight', { value: 25 })
+      Object.defineProperty(rightLine1, 'offsetHeight', { value: 30 })
+      Object.defineProperty(leftLine2, 'offsetHeight', { value: 20 })
+      Object.defineProperty(rightLine2, 'offsetHeight', { value: 15 })
+
+      syncLineHeights(leftElement, rightElement)
+
+      // Should set both lines to the max height of the pair
+      expect(leftLine1.style.minHeight).toBe('30px')
+      expect(rightLine1.style.minHeight).toBe('30px')
+      expect(leftLine2.style.minHeight).toBe('20px')
+      expect(rightLine2.style.minHeight).toBe('20px')
+    })
+
+    it('should handle uneven number of lines', () => {
+      const leftElement = document.createElement('div')
+      const rightElement = document.createElement('div')
+
+      // Left has 2 lines, right has 1
+      const leftLine1 = document.createElement('div')
+      const leftLine2 = document.createElement('div')
+      const rightLine1 = document.createElement('div')
+
+      leftElement.appendChild(leftLine1)
+      leftElement.appendChild(leftLine2)
+      rightElement.appendChild(rightLine1)
+
+      Object.defineProperty(leftLine1, 'offsetHeight', { value: 25 })
+      Object.defineProperty(rightLine1, 'offsetHeight', { value: 30 })
+      Object.defineProperty(leftLine2, 'offsetHeight', { value: 20 })
+
+      syncLineHeights(leftElement, rightElement)
+
+      // Should sync the first pair, but not affect the second left line
+      expect(leftLine1.style.minHeight).toBe('30px')
+      expect(rightLine1.style.minHeight).toBe('30px')
+      expect(leftLine2.style.minHeight).toBe('')
+    })
+
+    it('should handle empty containers', () => {
+      const leftElement = document.createElement('div')
+      const rightElement = document.createElement('div')
+
+      // Should not throw error with empty containers
+      expect(() => syncLineHeights(leftElement, rightElement)).not.toThrow()
     })
   })
 })

@@ -12,19 +12,24 @@ const {
   renderDiffGroup,
   renderAllGroups,
   extractRenderedContent,
-  createLineDiv
+  createLineDiv,
+  resetLineCounter
 } = require('../../src/render/renderer')
 
 describe('Renderer', () => {
+  beforeEach(() => {
+    resetLineCounter()
+  })
+
   describe('createLineDiv', () => {
     it('should create line div with class and content', () => {
       const result = createLineDiv('test-class', 'content')
-      expect(result).toBe('<div class="test-class">content</div>')
+      expect(result).toBe('<div class="test-class" data-line="1">content</div>')
     })
 
     it('should handle empty content', () => {
       const result = createLineDiv('empty', '')
-      expect(result).toBe('<div class="empty"></div>')
+      expect(result).toBe('<div class="empty" data-line="1"></div>')
     })
   })
 
@@ -32,8 +37,8 @@ describe('Renderer', () => {
     it('should render unchanged line for both sides', () => {
       const result = renderUnchangedLine('Hello world')
 
-      expect(result.left).toBe('<div class="unchanged">Hello world</div>')
-      expect(result.right).toBe('<div class="unchanged">Hello world</div>')
+      expect(result.left).toBe('<div class="unchanged" data-line="1">Hello world</div>')
+      expect(result.right).toBe('<div class="unchanged" data-line="2">Hello world</div>')
     })
 
     it('should escape HTML in unchanged line', () => {
@@ -57,22 +62,22 @@ describe('Renderer', () => {
     it('should handle addition only', () => {
       const result = linePairRenderer('', 'new line')
 
-      expect(result.left).toBe('<div class="placeholder"></div>')
-      expect(result.right).toBe('<div class="added"><span class="word-added">new line</span></div>')
+      expect(result.left).toBe('<div class="placeholder" data-line="1"></div>')
+      expect(result.right).toBe('<div class="added" data-line="2"><span class="word-added">new line</span></div>')
     })
 
     it('should handle removal only', () => {
       const result = linePairRenderer('old line', '')
 
-      expect(result.left).toBe('<div class="removed"><span class="word-removed">old line</span></div>')
-      expect(result.right).toBe('<div class="placeholder"></div>')
+      expect(result.left).toBe('<div class="removed" data-line="1"><span class="word-removed">old line</span></div>')
+      expect(result.right).toBe('<div class="placeholder" data-line="2"></div>')
     })
 
     it('should handle modification with word diff', () => {
       const result = linePairRenderer('old', 'new')
 
-      expect(result.left).toBe('<div class="removed"><span class="word-removed">old</span></div>')
-      expect(result.right).toBe('<div class="added"><span class="word-added">new</span></div>')
+      expect(result.left).toBe('<div class="removed" data-line="1"><span class="word-removed">old</span></div>')
+      expect(result.right).toBe('<div class="added" data-line="2"><span class="word-added">new</span></div>')
     })
 
     it('should handle empty inputs', () => {
@@ -174,6 +179,55 @@ describe('Renderer', () => {
 
       expect(result.leftHTML).toBe('')
       expect(result.rightHTML).toBe('')
+    })
+  })
+
+  describe('Line Counter', () => {
+    it('should increment line counter for each createLineDiv call', () => {
+      resetLineCounter()
+
+      const line1 = createLineDiv('test', 'content1')
+      const line2 = createLineDiv('test', 'content2')
+      const line3 = createLineDiv('test', 'content3')
+
+      expect(line1).toContain('data-line="1"')
+      expect(line2).toContain('data-line="2"')
+      expect(line3).toContain('data-line="3"')
+    })
+
+    it('should reset line counter when resetLineCounter is called', () => {
+      // Create some lines to increment counter
+      createLineDiv('test', 'content1')
+      createLineDiv('test', 'content2')
+
+      // Reset and verify it starts from 1 again
+      resetLineCounter()
+      const line1 = createLineDiv('test', 'content')
+
+      expect(line1).toContain('data-line="1"')
+    })
+
+    it('should reset line counter in renderAllGroups', () => {
+      // Create some lines to increment counter
+      createLineDiv('test', 'content1')
+      createLineDiv('test', 'content2')
+
+      const mockWordDiffer = (oldLine, newLine) => [oldLine, newLine]
+      const mockExtractLines = (parts) => parts.map(part => part.value.split('\n').filter(line => line))
+
+      const groupedDiff = [
+        {
+          unchanged: [{ value: 'unchanged line\n' }],
+          removed: [],
+          added: []
+        }
+      ]
+
+      const result = renderAllGroups(groupedDiff, mockWordDiffer, mockExtractLines)
+
+      // Should have reset counter and started from 1 again
+      expect(result[0].left).toContain('data-line="1"')
+      expect(result[0].right).toContain('data-line="2"')
     })
   })
 })

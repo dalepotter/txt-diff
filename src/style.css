@@ -10,6 +10,14 @@ body {
   align-items: start;
 }
 
+.diff-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  grid-column: 1 / -1;
+  align-items: start;
+}
+
 .editor-column {
   display: flex;
   flex-direction: column;
@@ -38,6 +46,15 @@ textarea {
   border: 1px solid #ccc;
   padding: 10px;
   min-height: 200px;
+  display: flex;
+  flex-direction: column;
+}
+
+.diff-output > div {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  padding: 2px 0;
+  box-sizing: border-box;
 }
 
 .added {
