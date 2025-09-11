@@ -4,31 +4,36 @@
 
 const { escapeHtml, wrapWithSpan } = require('../utils/htmlUtils');
 
-const renderUnchangedLine = (line) => ({
-  left: createLineDiv('unchanged', escapeHtml(line)),
-  right: createLineDiv('unchanged', escapeHtml(line))
-});
+const renderUnchangedLine = (line) => {
+  const lineNumber = ++lineCounter;
+  return {
+    left: createLineDiv('unchanged', escapeHtml(line), lineNumber),
+    right: createLineDiv('unchanged', escapeHtml(line), lineNumber)
+  };
+};
 
 const renderLinePair = (wordDiffer) => (oldLine, newLine) => {
+  const lineNumber = ++lineCounter;
+
   if (!oldLine && newLine) {
     return {
-      left: createLineDiv('placeholder', ''),
-      right: createLineDiv('added', wrapWithSpan(newLine, 'word-added'))
+      left: createLineDiv('placeholder', '', lineNumber),
+      right: createLineDiv('added', wrapWithSpan(newLine, 'word-added'), lineNumber)
     };
   }
 
   if (oldLine && !newLine) {
     return {
-      left: createLineDiv('removed', wrapWithSpan(oldLine, 'word-removed')),
-      right: createLineDiv('placeholder', '')
+      left: createLineDiv('removed', wrapWithSpan(oldLine, 'word-removed'), lineNumber),
+      right: createLineDiv('placeholder', '', lineNumber)
     };
   }
 
   if (oldLine && newLine) {
     const [leftHTML, rightHTML] = wordDiffer(oldLine, newLine);
     return {
-      left: createLineDiv('removed', leftHTML),
-      right: createLineDiv('added', rightHTML)
+      left: createLineDiv('removed', leftHTML, lineNumber),
+      right: createLineDiv('added', rightHTML, lineNumber)
     };
   }
 
@@ -37,9 +42,11 @@ const renderLinePair = (wordDiffer) => (oldLine, newLine) => {
 
 let lineCounter = 0;
 
-const createLineDiv = (className, content) => {
-  const lineNumber = ++lineCounter;
-  return `<div class="${className}" data-line="${lineNumber}">${content}</div>`;
+const createLineDiv = (className, content, lineNumber = null) => {
+  if (lineNumber === null) {
+    lineNumber = ++lineCounter;
+  }
+  return `<div class="${className}" data-line="${lineNumber}"><span class="line-number">${lineNumber}</span><span class="line-content">${content}</span></div>`;
 };
 
 const resetLineCounter = () => {

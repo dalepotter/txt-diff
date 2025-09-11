@@ -14,6 +14,7 @@ Inspired by tools like [Diffchecker](https://www.diffchecker.com/), but runs ent
 - Compare two text inputs, side-by-side.
 - Colour-coded highlights for added, removed, and unchanged lines.
 - Runs entirely in the browser: No backend required.
+- Optional line number output
 - Simple UI for desktop and mobile.
 - Keyboard shortcut available: Submit on Control+Enter
 
@@ -153,9 +154,7 @@ The tests comprehensively cover:
 
 ## 📋 Todos
 
-- Add settings to toggle:
-  - Line numbers
-  - Diff output (side-by-side vs. line diff)
+- Add setting to toggle diff output (side-by-side vs. line diff)
 - Improve styling:
   - Larger 'Compare' button
   - Add background colour

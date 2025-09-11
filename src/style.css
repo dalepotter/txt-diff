@@ -27,7 +27,16 @@ body {
   grid-column: 1 / -1;
   display: flex;
   justify-content: center;
+  align-items: center;
+  gap: 20px;
   margin: 10px 0;
+}
+
+.line-numbers-toggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
 }
 
 textarea {
@@ -82,4 +91,26 @@ textarea {
 .word-removed {
   background-color: #ffb3b3;
   font-weight: bold;
+}
+
+.line-number {
+  display: inline-block;
+  min-width: 40px;
+  padding-right: 10px;
+  color: #666;
+  user-select: none;
+  text-align: right;
+}
+
+.line-content {
+  flex: 1;
+}
+
+.diff-output > div {
+  display: flex;
+  align-items: flex-start;
+}
+
+.hide-line-numbers .line-number {
+  display: none;
 }

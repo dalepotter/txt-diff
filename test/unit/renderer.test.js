@@ -24,12 +24,12 @@ describe('Renderer', () => {
   describe('createLineDiv', () => {
     it('should create line div with class and content', () => {
       const result = createLineDiv('test-class', 'content')
-      expect(result).toBe('<div class="test-class" data-line="1">content</div>')
+      expect(result).toBe('<div class="test-class" data-line="1"><span class="line-number">1</span><span class="line-content">content</span></div>')
     })
 
     it('should handle empty content', () => {
       const result = createLineDiv('empty', '')
-      expect(result).toBe('<div class="empty" data-line="1"></div>')
+      expect(result).toBe('<div class="empty" data-line="1"><span class="line-number">1</span><span class="line-content"></span></div>')
     })
   })
 
@@ -37,8 +37,8 @@ describe('Renderer', () => {
     it('should render unchanged line for both sides', () => {
       const result = renderUnchangedLine('Hello world')
 
-      expect(result.left).toBe('<div class="unchanged" data-line="1">Hello world</div>')
-      expect(result.right).toBe('<div class="unchanged" data-line="2">Hello world</div>')
+      expect(result.left).toBe('<div class="unchanged" data-line="1"><span class="line-number">1</span><span class="line-content">Hello world</span></div>')
+      expect(result.right).toBe('<div class="unchanged" data-line="1"><span class="line-number">1</span><span class="line-content">Hello world</span></div>')
     })
 
     it('should escape HTML in unchanged line', () => {
@@ -62,22 +62,22 @@ describe('Renderer', () => {
     it('should handle addition only', () => {
       const result = linePairRenderer('', 'new line')
 
-      expect(result.left).toBe('<div class="placeholder" data-line="1"></div>')
-      expect(result.right).toBe('<div class="added" data-line="2"><span class="word-added">new line</span></div>')
+      expect(result.left).toBe('<div class="placeholder" data-line="1"><span class="line-number">1</span><span class="line-content"></span></div>')
+      expect(result.right).toBe('<div class="added" data-line="1"><span class="line-number">1</span><span class="line-content"><span class="word-added">new line</span></span></div>')
     })
 
     it('should handle removal only', () => {
       const result = linePairRenderer('old line', '')
 
-      expect(result.left).toBe('<div class="removed" data-line="1"><span class="word-removed">old line</span></div>')
-      expect(result.right).toBe('<div class="placeholder" data-line="2"></div>')
+      expect(result.left).toBe('<div class="removed" data-line="1"><span class="line-number">1</span><span class="line-content"><span class="word-removed">old line</span></span></div>')
+      expect(result.right).toBe('<div class="placeholder" data-line="1"><span class="line-number">1</span><span class="line-content"></span></div>')
     })
 
     it('should handle modification with word diff', () => {
       const result = linePairRenderer('old', 'new')
 
-      expect(result.left).toBe('<div class="removed" data-line="1"><span class="word-removed">old</span></div>')
-      expect(result.right).toBe('<div class="added" data-line="2"><span class="word-added">new</span></div>')
+      expect(result.left).toBe('<div class="removed" data-line="1"><span class="line-number">1</span><span class="line-content"><span class="word-removed">old</span></span></div>')
+      expect(result.right).toBe('<div class="added" data-line="1"><span class="line-number">1</span><span class="line-content"><span class="word-added">new</span></span></div>')
     })
 
     it('should handle empty inputs', () => {
@@ -227,7 +227,66 @@ describe('Renderer', () => {
 
       // Should have reset counter and started from 1 again
       expect(result[0].left).toContain('data-line="1"')
-      expect(result[0].right).toContain('data-line="2"')
+      expect(result[0].right).toContain('data-line="1"')
+    })
+  })
+
+  describe('Line Number Structure', () => {
+    beforeEach(() => {
+      resetLineCounter()
+    })
+
+    it('should include line-number and line-content spans in every line', () => {
+      const result = createLineDiv('test-class', 'test content')
+
+      expect(result).toContain('<span class="line-number">1</span>')
+      expect(result).toContain('<span class="line-content">test content</span>')
+    })
+
+    it('should have correct line number sequence in unchanged lines', () => {
+      const result1 = renderUnchangedLine('first line')
+      const result2 = renderUnchangedLine('second line')
+
+      expect(result1.left).toContain('<span class="line-number">1</span>')
+      expect(result1.right).toContain('<span class="line-number">1</span>')
+      expect(result2.left).toContain('<span class="line-number">2</span>')
+      expect(result2.right).toContain('<span class="line-number">2</span>')
+    })
+
+    it('should maintain line number sequence in mixed diff types', () => {
+      const mockWordDiffer = (oldLine, newLine) => [oldLine, newLine]
+      const linePairRenderer = renderLinePair(mockWordDiffer)
+
+      // First render an unchanged line
+      const unchanged = renderUnchangedLine('same line')
+      expect(unchanged.left).toContain('<span class="line-number">1</span>')
+      expect(unchanged.right).toContain('<span class="line-number">1</span>')
+
+      // Then render a changed line pair
+      const changed = linePairRenderer('old line', 'new line')
+      expect(changed.left).toContain('<span class="line-number">2</span>')
+      expect(changed.right).toContain('<span class="line-number">2</span>')
+    })
+
+    it('should handle empty content with proper line number structure', () => {
+      const result = createLineDiv('placeholder', '')
+
+      expect(result).toContain('<span class="line-number">1</span>')
+      expect(result).toContain('<span class="line-content"></span>')
+    })
+
+    it('should wrap word-diffed content inside line-content span', () => {
+      const mockWordDiffer = (oldLine, newLine) => {
+        return ['<span class="word-removed">old</span>', '<span class="word-added">new</span>']
+      }
+      const linePairRenderer = renderLinePair(mockWordDiffer)
+
+      const result = linePairRenderer('old word', 'new word')
+
+      expect(result.left).toContain('<span class="line-number">1</span>')
+      expect(result.right).toContain('<span class="line-number">1</span>')
+      expect(result.left).toContain('<span class="line-content"><span class="word-removed">old</span></span>')
+      expect(result.right).toContain('<span class="line-content"><span class="word-added">new</span></span>')
     })
   })
 })

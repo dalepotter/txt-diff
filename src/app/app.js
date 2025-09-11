@@ -32,6 +32,11 @@ const createDiffApp = (config = {}) => {
 
     state.elements.compareBtn.addEventListener('click', handleCompare);
 
+    // Line numbers toggle functionality
+    if (state.elements?.lineNumbersCheckbox) {
+      state.elements.lineNumbersCheckbox.addEventListener('change', handleLineNumbersToggle);
+    }
+
     // Add Ctrl+Enter keyboard shortcut
     document.addEventListener('keydown', (event) => {
       if (event.ctrlKey && event.key === 'Enter') {
@@ -51,6 +56,21 @@ const createDiffApp = (config = {}) => {
     } catch (error) {
       console.error('Diff operation failed:', error);
       // Could show user-friendly error message here
+    }
+  };
+
+  const handleLineNumbersToggle = () => {
+    try {
+      const isChecked = state.elements.lineNumbersCheckbox.checked;
+      const diffContainer = document.querySelector('.diff-container');
+
+      if (isChecked) {
+        diffContainer.classList.remove('hide-line-numbers');
+      } else {
+        diffContainer.classList.add('hide-line-numbers');
+      }
+    } catch (error) {
+      console.error('Line numbers toggle failed:', error);
     }
   };
 

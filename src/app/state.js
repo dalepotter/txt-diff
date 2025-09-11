@@ -9,6 +9,7 @@ const createAppState = (config = {}) => ({
     compareButtonId: 'compareBtn',
     leftDiffId: 'diffLeft',
     rightDiffId: 'diffRight',
+    lineNumbersCheckboxId: 'lineNumbersCheckbox',
     ...config
   },
   elements: null,
@@ -24,7 +25,8 @@ const initializeElements = (state) => {
     text2Id: 'text2',
     compareButtonId: 'compareBtn',
     leftDiffId: 'leftDiff',
-    rightDiffId: 'rightDiff'
+    rightDiffId: 'rightDiff',
+    lineNumbersCheckboxId: 'lineNumbersCheckbox'
   };
 
   Object.entries(elementMapping).forEach(([configKey, elementKey]) => {
@@ -32,7 +34,8 @@ const initializeElements = (state) => {
     if (id) {
       elements[elementKey] = document.getElementById(id);
 
-      if (!elements[elementKey]) {
+      // Line numbers checkbox is optional for backward compatibility
+      if (!elements[elementKey] && elementKey !== 'lineNumbersCheckbox') {
         throw new Error(`Required element not found: ${id}`);
       }
     }

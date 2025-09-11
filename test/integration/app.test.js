@@ -36,8 +36,11 @@ describe('App Integration', () => {
         <textarea id="text1">Hello\nworld</textarea>
         <textarea id="text2">Hello\nuniverse</textarea>
         <button id="compareBtn">Compare</button>
-        <div id="diffLeft" class="diff-output"></div>
-        <div id="diffRight" class="diff-output"></div>
+        <input type="checkbox" id="lineNumbersCheckbox" checked>
+        <div class="diff-container">
+          <div id="diffLeft" class="diff-output"></div>
+          <div id="diffRight" class="diff-output"></div>
+        </div>
       </body>
       </html>
     `)
@@ -340,6 +343,137 @@ describe('App Integration', () => {
       } finally {
         rafSpy.mockRestore()
       }
+    })
+  })
+
+  describe('Line Number Toggle Functionality', () => {
+    it('should initialize with line numbers checkbox checked', async () => {
+      const { createDiffApp } = await import('../../src/app/app.js')
+
+      const app = createDiffApp()
+      const state = app.initialize()
+
+      expect(state.elements.lineNumbersCheckbox.checked).toBe(true)
+      expect(document.querySelector('.diff-container').classList.contains('hide-line-numbers')).toBe(false)
+    })
+
+    it('should toggle line numbers visibility when checkbox is unchecked', async () => {
+      const { createDiffApp } = await import('../../src/app/app.js')
+
+      const app = createDiffApp()
+      const state = app.initialize()
+
+      const diffContainer = document.querySelector('.diff-container')
+      const checkbox = state.elements.lineNumbersCheckbox
+
+      // Initially should not have hide-line-numbers class
+      expect(diffContainer.classList.contains('hide-line-numbers')).toBe(false)
+
+      // Uncheck the checkbox
+      checkbox.checked = false
+      const changeEvent = new dom.window.Event('change')
+      checkbox.dispatchEvent(changeEvent)
+
+      // Should now have hide-line-numbers class
+      expect(diffContainer.classList.contains('hide-line-numbers')).toBe(true)
+    })
+
+    it('should show line numbers when checkbox is checked', async () => {
+      const { createDiffApp } = await import('../../src/app/app.js')
+
+      const app = createDiffApp()
+      const state = app.initialize()
+
+      const diffContainer = document.querySelector('.diff-container')
+      const checkbox = state.elements.lineNumbersCheckbox
+
+      // First hide line numbers
+      checkbox.checked = false
+      checkbox.dispatchEvent(new dom.window.Event('change'))
+      expect(diffContainer.classList.contains('hide-line-numbers')).toBe(true)
+
+      // Then show them again
+      checkbox.checked = true
+      checkbox.dispatchEvent(new dom.window.Event('change'))
+      expect(diffContainer.classList.contains('hide-line-numbers')).toBe(false)
+    })
+
+    it('should handle line number toggle errors gracefully', async () => {
+      const { createDiffApp } = await import('../../src/app/app.js')
+
+      // Mock console.error to prevent test output noise
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+      const app = createDiffApp()
+      const state = app.initialize()
+
+      // Remove diff-container to cause an error
+      document.querySelector('.diff-container').remove()
+
+      // Should not crash when toggling
+      const checkbox = state.elements.lineNumbersCheckbox
+      checkbox.checked = false
+      expect(() => {
+        checkbox.dispatchEvent(new dom.window.Event('change'))
+      }).not.toThrow()
+
+      expect(consoleSpy).toHaveBeenCalled()
+      consoleSpy.mockRestore()
+    })
+
+    it('should work correctly even if checkbox element is missing', async () => {
+      // Create DOM without checkbox
+      dom = new JSDOM(`
+        <!DOCTYPE html>
+        <html>
+        <body>
+          <textarea id="text1">Hello\nworld</textarea>
+          <textarea id="text2">Hello\nuniverse</textarea>
+          <button id="compareBtn">Compare</button>
+          <div class="diff-container">
+            <div id="diffLeft" class="diff-output"></div>
+            <div id="diffRight" class="diff-output"></div>
+          </div>
+        </body>
+        </html>
+      `)
+
+      document = dom.window.document
+      window = dom.window
+      global.document = document
+      global.window = window
+
+      const { createDiffApp } = await import('../../src/app/app.js')
+
+      const app = createDiffApp()
+
+      // Should initialize successfully even without checkbox
+      expect(() => {
+        app.initialize()
+      }).not.toThrow()
+    })
+
+    it('should display line numbers in diff output by default', async () => {
+      const { createDiffApp } = await import('../../src/app/app.js')
+
+      const app = createDiffApp()
+      const state = app.initialize()
+
+      // Set input values and perform diff
+      state.elements.text1.value = 'line1\nline2'
+      state.elements.text2.value = 'line1\nline2 modified'
+
+      const clickEvent = new dom.window.Event('click')
+      state.elements.compareBtn.dispatchEvent(clickEvent)
+
+      // Check that line numbers are present in the output
+      const leftContent = state.elements.leftDiff.innerHTML
+      const rightContent = state.elements.rightDiff.innerHTML
+
+      expect(leftContent).toContain('class="line-number"')
+      expect(rightContent).toContain('class="line-number"')
+      expect(leftContent).toContain('class="line-content"')
+      expect(rightContent).toContain('class="line-content"')
     })
   })
 })
