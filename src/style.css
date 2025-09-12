@@ -32,7 +32,8 @@ body {
   margin: 10px 0;
 }
 
-.line-numbers-toggle {
+.line-numbers-toggle,
+.diff-view-toggle {
   display: flex;
   align-items: center;
   gap: 5px;
@@ -112,5 +113,38 @@ textarea {
 }
 
 .hide-line-numbers .line-number {
+  display: none;
+}
+
+/* Unified diff view styles */
+.unified-diff .diff-container {
+  grid-template-columns: 1fr;
+}
+
+.unified-diff #diffRight {
+  display: none;
+}
+
+.unified-diff #diffLeft {
+  border-right: none;
+}
+
+.unified-diff .diff-output > div.added {
+  background-color: #d4fcdc;
+  border-left: 4px solid #28a745;
+  padding-left: 6px;
+}
+
+.unified-diff .diff-output > div.removed {
+  background-color: #ffe0e0;
+  border-left: 4px solid #dc3545;
+  padding-left: 6px;
+}
+
+.unified-diff .diff-output > div.unchanged {
+  background-color: #f8f9fa;
+}
+
+.unified-diff .diff-output > div.placeholder {
   display: none;
 }

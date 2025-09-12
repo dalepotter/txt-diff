@@ -6,7 +6,7 @@ const { diffLines, diffWords } = require('diff');
 const { createAppState, initializeElements, getInputValues, clearOutputs, updateOutputs } = require('./state');
 const { processLineDiff, extractLines } = require('../diff/diffProcessor');
 const { createWordDiffHTML } = require('../diff/wordDiffer');
-const { renderAllGroups, extractRenderedContent } = require('../render/renderer');
+const { renderAllGroups, extractRenderedContent, extractUnifiedContent } = require('../render/renderer');
 
 const createDiffApp = (config = {}) => {
   let state = createAppState(config);
@@ -35,6 +35,11 @@ const createDiffApp = (config = {}) => {
     // Line numbers toggle functionality
     if (state.elements?.lineNumbersCheckbox) {
       state.elements.lineNumbersCheckbox.addEventListener('change', handleLineNumbersToggle);
+    }
+
+    // Diff view toggle functionality
+    if (state.elements?.sideBySideCheckbox) {
+      state.elements.sideBySideCheckbox.addEventListener('change', handleDiffViewToggle);
     }
 
     // Add Ctrl+Enter keyboard shortcut
@@ -74,10 +79,41 @@ const createDiffApp = (config = {}) => {
     }
   };
 
+  const handleDiffViewToggle = () => {
+    try {
+      const isChecked = state.elements.sideBySideCheckbox.checked;
+      const bodyElement = document.body;
+
+      if (isChecked) {
+        bodyElement.classList.remove('unified-diff');
+      } else {
+        bodyElement.classList.add('unified-diff');
+      }
+
+      // Re-run the diff if there's already content
+      if (state.elements.leftDiff.innerHTML || state.elements.rightDiff.innerHTML) {
+        const { text1, text2 } = getInputValues(state);
+        const { leftHTML, rightHTML } = performDiff(text1, text2);
+        clearOutputs(state);
+        updateOutputs(state, leftHTML, rightHTML);
+      }
+    } catch (error) {
+      console.error('Diff view toggle failed:', error);
+    }
+  };
+
   const performDiff = (text1, text2) => {
     const groupedDiff = processLineDiff(diffLines, text1, text2);
     const renderedLines = renderAllGroups(groupedDiff, wordDiffer, extractLines);
-    return extractRenderedContent(renderedLines);
+
+    // Check if we're in unified view mode
+    const isUnifiedView = state.elements?.sideBySideCheckbox && !state.elements.sideBySideCheckbox.checked;
+
+    if (isUnifiedView) {
+      return extractUnifiedContent(renderedLines);
+    } else {
+      return extractRenderedContent(renderedLines);
+    }
   };
 
   // Public API

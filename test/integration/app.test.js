@@ -37,6 +37,7 @@ describe('App Integration', () => {
         <textarea id="text2">Hello\nuniverse</textarea>
         <button id="compareBtn">Compare</button>
         <input type="checkbox" id="lineNumbersCheckbox" checked>
+        <input type="checkbox" id="sideBySideCheckbox" checked>
         <div class="diff-container">
           <div id="diffLeft" class="diff-output"></div>
           <div id="diffRight" class="diff-output"></div>
@@ -474,6 +475,156 @@ describe('App Integration', () => {
       expect(rightContent).toContain('class="line-number"')
       expect(leftContent).toContain('class="line-content"')
       expect(rightContent).toContain('class="line-content"')
+    })
+  })
+
+  describe('Diff View Toggle Functionality', () => {
+    it('should initialize with side-by-side view checkbox checked', async () => {
+      const { createDiffApp } = await import('../../src/app/app.js')
+
+      const app = createDiffApp()
+      const state = app.initialize()
+
+      expect(state.elements.sideBySideCheckbox.checked).toBe(true)
+      expect(document.body.classList.contains('unified-diff')).toBe(false)
+    })
+
+    it('should toggle to unified view when checkbox is unchecked', async () => {
+      const { createDiffApp } = await import('../../src/app/app.js')
+
+      const app = createDiffApp()
+      const state = app.initialize()
+
+      const checkbox = state.elements.sideBySideCheckbox
+
+      // Initially should not have unified-diff class
+      expect(document.body.classList.contains('unified-diff')).toBe(false)
+
+      // Uncheck the checkbox to switch to unified view
+      checkbox.checked = false
+      const changeEvent = new dom.window.Event('change')
+      checkbox.dispatchEvent(changeEvent)
+
+      // Should now have unified-diff class
+      expect(document.body.classList.contains('unified-diff')).toBe(true)
+    })
+
+    it('should switch back to side-by-side view when checkbox is checked', async () => {
+      const { createDiffApp } = await import('../../src/app/app.js')
+
+      const app = createDiffApp()
+      const state = app.initialize()
+
+      const checkbox = state.elements.sideBySideCheckbox
+
+      // First switch to unified view
+      checkbox.checked = false
+      checkbox.dispatchEvent(new dom.window.Event('change'))
+      expect(document.body.classList.contains('unified-diff')).toBe(true)
+
+      // Then switch back to side-by-side view
+      checkbox.checked = true
+      checkbox.dispatchEvent(new dom.window.Event('change'))
+      expect(document.body.classList.contains('unified-diff')).toBe(false)
+    })
+
+    it('should re-render diff content when toggling views', async () => {
+      const { createDiffApp } = await import('../../src/app/app.js')
+
+      const app = createDiffApp()
+      const state = app.initialize()
+
+      // Set input values and perform initial diff
+      state.elements.text1.value = 'line1\nline2'
+      state.elements.text2.value = 'line1\nline3'
+
+      const clickEvent = new dom.window.Event('click')
+      state.elements.compareBtn.dispatchEvent(clickEvent)
+
+      // Store initial content
+      const initialLeftContent = state.elements.leftDiff.innerHTML
+      const initialRightContent = state.elements.rightDiff.innerHTML
+
+      // Toggle to unified view
+      const checkbox = state.elements.sideBySideCheckbox
+      checkbox.checked = false
+      const changeEvent = new dom.window.Event('change')
+      checkbox.dispatchEvent(changeEvent)
+
+      // Content should be re-rendered for unified view
+      const unifiedLeftContent = state.elements.leftDiff.innerHTML
+      const unifiedRightContent = state.elements.rightDiff.innerHTML
+
+      expect(unifiedLeftContent).not.toBe(initialLeftContent)
+      expect(unifiedRightContent).toBe('') // Right content should be empty in unified view
+    })
+
+    it('should handle diff view toggle errors gracefully', async () => {
+      const { createDiffApp } = await import('../../src/app/app.js')
+
+      // Mock console.error to prevent test output noise
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+      const app = createDiffApp()
+      const state = app.initialize()
+
+      // Mock getInputValues to throw an error
+      const originalValue = state.elements.text1.value
+      Object.defineProperty(state.elements.text1, 'value', {
+        get: () => { throw new Error('Test error') },
+        configurable: true
+      })
+
+      // Should not crash when toggling with existing content
+      state.elements.leftDiff.innerHTML = 'some content'
+      const checkbox = state.elements.sideBySideCheckbox
+      checkbox.checked = false
+
+      expect(() => {
+        checkbox.dispatchEvent(new dom.window.Event('change'))
+      }).not.toThrow()
+
+      expect(consoleSpy).toHaveBeenCalled()
+
+      // Restore original value
+      Object.defineProperty(state.elements.text1, 'value', {
+        get: () => originalValue,
+        configurable: true
+      })
+      consoleSpy.mockRestore()
+    })
+
+    it('should work correctly even if side-by-side checkbox element is missing', async () => {
+      // Create DOM without side-by-side checkbox
+      dom = new JSDOM(`
+        <!DOCTYPE html>
+        <html>
+        <body>
+          <textarea id="text1">Hello\nworld</textarea>
+          <textarea id="text2">Hello\nuniverse</textarea>
+          <button id="compareBtn">Compare</button>
+          <input type="checkbox" id="lineNumbersCheckbox" checked>
+          <div class="diff-container">
+            <div id="diffLeft" class="diff-output"></div>
+            <div id="diffRight" class="diff-output"></div>
+          </div>
+        </body>
+        </html>
+      `)
+
+      document = dom.window.document
+      window = dom.window
+      global.document = document
+      global.window = window
+
+      const { createDiffApp } = await import('../../src/app/app.js')
+
+      const app = createDiffApp()
+
+      // Should initialize successfully even without side-by-side checkbox
+      expect(() => {
+        app.initialize()
+      }).not.toThrow()
     })
   })
 })

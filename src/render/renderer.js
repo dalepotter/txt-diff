@@ -85,12 +85,37 @@ const extractRenderedContent = (renderedLines) => {
   return { leftHTML, rightHTML };
 };
 
+const extractUnifiedContent = (renderedLines) => {
+  const unifiedHTML = renderedLines.map(line => {
+    // For unified view, prioritize showing actual changes over placeholders
+    if (line.left && line.left.includes('placeholder')) {
+      return line.right; // Show added line
+    } else if (line.right && line.right.includes('placeholder')) {
+      return line.left; // Show removed line
+    } else {
+      // For unchanged lines or modifications, show both removed then added
+      const leftHTML = line.left || '';
+      const rightHTML = line.right || '';
+
+      if (leftHTML.includes('unchanged')) {
+        return leftHTML; // Show unchanged line once
+      } else {
+        // Show removed line followed by added line
+        return leftHTML + rightHTML;
+      }
+    }
+  }).filter(line => line && !line.includes('placeholder')).join('');
+
+  return { leftHTML: unifiedHTML, rightHTML: '' };
+};
+
 module.exports = {
   renderUnchangedLine,
   renderLinePair,
   renderDiffGroup,
   renderAllGroups,
   extractRenderedContent,
+  extractUnifiedContent,
   createLineDiv,
   resetLineCounter
 };

@@ -12,6 +12,7 @@ const {
   renderDiffGroup,
   renderAllGroups,
   extractRenderedContent,
+  extractUnifiedContent,
   createLineDiv,
   resetLineCounter
 } = require('../../src/render/renderer')
@@ -176,6 +177,71 @@ describe('Renderer', () => {
 
     it('should handle empty rendered lines', () => {
       const result = extractRenderedContent([])
+
+      expect(result.leftHTML).toBe('')
+      expect(result.rightHTML).toBe('')
+    })
+  })
+
+  describe('extractUnifiedContent', () => {
+    it('should extract unified content prioritizing added lines over placeholders', () => {
+      const renderedLines = [
+        { left: '<div class="placeholder">placeholder</div>', right: '<div class="added">added line</div>' }
+      ]
+
+      const result = extractUnifiedContent(renderedLines)
+
+      expect(result.leftHTML).toContain('added line')
+      expect(result.rightHTML).toBe('')
+    })
+
+    it('should extract unified content prioritizing removed lines over placeholders', () => {
+      const renderedLines = [
+        { left: '<div class="removed">removed line</div>', right: '<div class="placeholder">placeholder</div>' }
+      ]
+
+      const result = extractUnifiedContent(renderedLines)
+
+      expect(result.leftHTML).toContain('removed line')
+      expect(result.rightHTML).toBe('')
+    })
+
+    it('should show unchanged lines once in unified view', () => {
+      const renderedLines = [
+        { left: '<div class="unchanged">same line</div>', right: '<div class="unchanged">same line</div>' }
+      ]
+
+      const result = extractUnifiedContent(renderedLines)
+
+      expect(result.leftHTML).toContain('same line')
+      expect(result.rightHTML).toBe('')
+    })
+
+    it('should combine removed and added lines for modifications', () => {
+      const renderedLines = [
+        { left: '<div class="removed">old line</div>', right: '<div class="added">new line</div>' }
+      ]
+
+      const result = extractUnifiedContent(renderedLines)
+
+      expect(result.leftHTML).toContain('old line')
+      expect(result.leftHTML).toContain('new line')
+      expect(result.rightHTML).toBe('')
+    })
+
+    it('should handle empty rendered lines', () => {
+      const result = extractUnifiedContent([])
+
+      expect(result.leftHTML).toBe('')
+      expect(result.rightHTML).toBe('')
+    })
+
+    it('should filter out placeholder content', () => {
+      const renderedLines = [
+        { left: '<div class="placeholder">placeholder</div>', right: '<div class="placeholder">placeholder</div>' }
+      ]
+
+      const result = extractUnifiedContent(renderedLines)
 
       expect(result.leftHTML).toBe('')
       expect(result.rightHTML).toBe('')
