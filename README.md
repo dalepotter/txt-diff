@@ -88,10 +88,11 @@ txt-diff/
 │   ├── index.js        # Application entry point
 │   └── style.css       # UI styling
 ├── test/
-│   ├── integration/          # Integration tests (end-to-end functionality)
-│   │   ├── app.test.js       # App integration tests  
-│   │   └── diff.test.js      # Diff functionality integration tests
-│   └── unit/                 # Unit tests (individual modules)
+│   ├── integration/              # Integration tests (end-to-end functionality)
+│   │   ├── app.test.js           # App integration tests
+│   │   ├── dom-integration.test.js # DOM manipulation tests
+│   │   └── end-to-end.test.js    # Complete user workflow tests
+│   └── unit/                     # Unit tests (individual modules)
 │       ├── diffProcessor.test.js # Diff processor unit tests
 │       ├── htmlUtils.test.js     # HTML utilities unit tests
 │       ├── legacy.test.js        # Legacy unit tests  
@@ -110,12 +111,13 @@ This project uses [Vitest](https://vitest.dev/) for testing with jsdom for DOM t
 
 ### Test Structure
 
-The test suite is organized by test type with **100 tests** across 8 test files:
+The test suite is organised by test type:
 
 ### Integration Tests (`test/integration/`)
 Tests that verify end-to-end functionality and module interaction:
 - `app.test.js` - Complete application workflows and user interactions
-- `diff.test.js` - Full diff processing pipeline from input to output
+- `dom-integration.test.js` - DOM manipulation and browser environment testing
+- `end-to-end.test.js` - Full user workflows from input to rendered output
 
 ### Unit Tests (`test/unit/`)
 Tests that verify individual modules in isolation:
@@ -145,12 +147,13 @@ npm run test:integration:run # Run integration tests once
 ### Test Coverage
 
 The tests comprehensively cover:
-- **Pure functions** - All utility and processing functions
+- **Pure functions** - All utility and processing functions (with proper mocking of third-party libraries)
 - **State management** - Application initialization and DOM interaction
-- **Integration flows** - Complete user workflows  
+- **Integration flows** - Complete user workflows from input to output
 - **Error handling** - Graceful failure scenarios
 - **Edge cases** - Empty inputs, multiline text, HTML injection, special characters
 - **Function composition** - How modules work together
+- **User interactions** - Button clicks, view toggles, and keyboard shortcuts
 
 
 ## 📋 Todos

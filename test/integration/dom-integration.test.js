@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { JSDOM } from 'jsdom'
-import { diffLines, diffWords } from 'diff'
 
 describe('Text Diff Functionality - Integration Tests', () => {
   let dom, document, window
@@ -27,26 +26,6 @@ describe('Text Diff Functionality - Integration Tests', () => {
     global.window = window
   })
 
-  // Test the core diff functionality directly
-  it('should perform line-based diff correctly', () => {
-    const text1 = 'Hello\nworld\nfrom\ntest'
-    const text2 = 'Hello\nuniverse\nfrom\ntest'
-
-    const result = diffLines(text1, text2)
-
-    expect(result.length).toBeGreaterThan(1)
-    expect(result.some(part => part.removed)).toBe(true)
-    expect(result.some(part => part.added)).toBe(true)
-  })
-
-  it('should handle empty inputs', () => {
-    const result1 = diffLines('', '')
-    expect(result1).toEqual([])
-
-    const result2 = diffLines('test', '')
-    expect(result2.length).toBeGreaterThan(0)
-    expect(result2[0].removed).toBe(true)
-  })
 
   // Test HTML escaping function behavior
   it('should properly escape HTML in DOM', () => {
@@ -74,22 +53,6 @@ describe('Text Diff Functionality - Integration Tests', () => {
     expect(leftDiv.children[0].classList.contains('unchanged')).toBe(true)
   })
 
-  it('should handle multiline text processing', () => {
-    const text1 = 'Line 1\nLine 2\nLine 3'
-    const text2 = 'Line 1\nModified Line 2\nLine 3'
-
-    const diff = diffLines(text1, text2)
-
-    // Should detect the change in line 2
-    expect(diff.length).toBeGreaterThan(1)
-
-    // Check that we have removed and added parts
-    const hasRemoved = diff.some(part => part.removed)
-    const hasAdded = diff.some(part => part.added)
-
-    expect(hasRemoved).toBe(true)
-    expect(hasAdded).toBe(true)
-  })
 
   // Integration test with new architecture
   it('should work with new function-based app architecture', async () => {
